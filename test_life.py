@@ -16,10 +16,38 @@
 
 import unittest
 
+from life import RectangularField, ALIVE, DEAD
+
 
 class TestLife(unittest.TestCase):
-    def test_tests(self):
-        self.assertTrue(False)
+    def test_can_create_field(self):
+        field = RectangularField(1, 1)
+        self.assertIsNotNone(field)
+
+    def test_cannot_create_negative_sized_field(self):
+        with self.assertRaises(ValueError):
+            field = RectangularField(0, -1)
+        with self.assertRaises(ValueError):
+            field = RectangularField(-1, 0)
+
+    def test_new_field_is_unpopulated(self):
+        field = RectangularField(1, 1)
+        self.assertEqual(DEAD, field.cell(0, 0))
+
+    def test_cannot_access_out_of_bounds(self):
+        field = RectangularField(1, 1)
+        with self.assertRaises(IndexError):
+            field.cell(-1, 0)
+        with self.assertRaises(IndexError):
+            field.cell(0, -1)
+        with self.assertRaises(IndexError):
+            field.cell(1, 0)
+        with self.assertRaises(IndexError):
+            field.cell(0, 1)
+
+    def test_can_assign_state_at_creation(self):
+        field = RectangularField(1, 1, state=[[ALIVE]])
+        self.assertEqual(ALIVE, field.cell(0, 0))
 
 
 if __name__ == '__main__':
