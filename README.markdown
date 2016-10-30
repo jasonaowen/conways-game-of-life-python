@@ -1,3 +1,5 @@
 # Conway's Game of Life
 
 An implementation of Conway's Game of Life in Python.
+
+Licensed under the GPL, v3.
