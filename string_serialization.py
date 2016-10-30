@@ -1,4 +1,4 @@
-# printer.py - Conway's Game of Life, pretty printer
+# string_serialization.py - Conway's Game of Life, string [de]serialization
 # Copyright (C) 2016 Jason Owen
 
 # This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,37 @@ from life import RectangularField, ALIVE, DEAD
 
 ALIVE_GLYPH = '*'
 DEAD_GLYPH = '.'
+NEWLINE = '\n'
 
 
 def printField(field):
-    return '\n'.join([
+    return NEWLINE.join([
         ''.join([
             ALIVE_GLYPH if cell == ALIVE else DEAD_GLYPH
             for cell in row
         ]) for row in field.cells
+    ])
+
+
+def parseString(string):
+    invalid_characters = set(string) - set([ALIVE_GLYPH, DEAD_GLYPH, NEWLINE])
+    if len(invalid_characters) > 0:
+        raise ValueError("Invalid character(s) in input: {}".format(
+            invalid_characters
+        ))
+
+    rows = string.split(NEWLINE)
+    if len(set([len(row) for row in rows])) > 1:
+        raise ValueError("All rows must be of equal length!")
+
+    height = len(rows)
+    width = len(rows[0])
+    if width == 0:
+        raise ValueError("Cannot have empty field!")
+
+    return RectangularField(width, height, state=[
+        [
+            ALIVE if cell == ALIVE_GLYPH else DEAD
+            for cell in row
+        ] for row in rows
     ])

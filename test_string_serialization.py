@@ -1,4 +1,4 @@
-# test_printer.py - Conway's Game of Life, pretty printer unit tests
+# test_printer.py - Conway's Game of Life, string serialization unit tests
 # Copyright (C) 2016 Jason Owen
 
 # This program is free software: you can redistribute it and/or modify
@@ -17,10 +17,10 @@
 import unittest
 
 from life import RectangularField, ALIVE, DEAD
-from printer import printField
+from string_serialization import printField, parseString
 
 
-class TestPrinter(unittest.TestCase):
+class TestStringSerialization(unittest.TestCase):
     def test_print_one_dead_cell(self):
         field = RectangularField(1, 1)
         output = printField(field)
@@ -41,6 +41,35 @@ class TestPrinter(unittest.TestCase):
                                               [DEAD, ALIVE]])
         output = printField(field)
         self.assertEqual('*.\n.*', output)
+
+    def test_parse_uneven_grid_fails(self):
+        with self.assertRaises(ValueError):
+            parseString('..\n.')
+
+    def test_parse_unknown_character_fails(self):
+        with self.assertRaises(ValueError):
+            parseString('a')
+
+    def test_parse_empty_string_fails(self):
+        with self.assertRaises(ValueError):
+            parseString('')
+
+    def test_parse_one_dead_cell(self):
+        field = parseString('.')
+        self.assertEqual(DEAD, field.cell(0, 0))
+
+    def test_parse_2_by_2(self):
+        field = parseString('.*\n*.')
+        self.assertEqual(DEAD, field.cell(0, 0))
+        self.assertEqual(ALIVE, field.cell(0, 1))
+        self.assertEqual(ALIVE, field.cell(1, 0))
+        self.assertEqual(DEAD, field.cell(1, 1))
+
+    def test_round_trip(self):
+        field = RectangularField(1, 1)
+        output = printField(field)
+        parsed = parseString(output)
+        field.cells == parsed.cells
 
 
 if __name__ == '__main__':
