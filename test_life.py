@@ -34,20 +34,53 @@ class TestLife(unittest.TestCase):
         field = RectangularField(1, 1)
         self.assertEqual(DEAD, field.cell(0, 0))
 
-    def test_cannot_access_out_of_bounds(self):
+    def test_cells_outside_field_are_dead(self):
         field = RectangularField(1, 1)
-        with self.assertRaises(IndexError):
-            field.cell(-1, 0)
-        with self.assertRaises(IndexError):
-            field.cell(0, -1)
-        with self.assertRaises(IndexError):
-            field.cell(1, 0)
-        with self.assertRaises(IndexError):
-            field.cell(0, 1)
+        self.assertEqual(DEAD, field.cell(-1, 0))
+        self.assertEqual(DEAD, field.cell(0, -1))
+        self.assertEqual(DEAD, field.cell(1, 0))
+        self.assertEqual(DEAD, field.cell(0, 1))
 
     def test_can_assign_state_at_creation(self):
         field = RectangularField(1, 1, state=[[ALIVE]])
         self.assertEqual(ALIVE, field.cell(0, 0))
+
+    def test_cannot_assign_missized_state_at_creation(self):
+        with self.assertRaises(ValueError):
+            field = RectangularField(1, 1, state=[[]])
+        with self.assertRaises(ValueError):
+            field = RectangularField(1, 1, state=[[ALIVE, ALIVE]])
+        with self.assertRaises(ValueError):
+            field = RectangularField(1, 1, state=[[], []])
+
+    def test_second_generation_of_unit_field_is_dead(self):
+        dead_field = RectangularField(1, 1)
+        self.assertEqual(DEAD, dead_field.successor().cell(0, 0))
+
+        alive_field = RectangularField(1, 1, state=[[ALIVE]])
+        self.assertEqual(DEAD, dead_field.successor().cell(0, 0))
+
+    def test_second_generation_of_1d_alive_field(self):
+        field = RectangularField(3, 1, state=[[ALIVE, ALIVE, ALIVE]])
+        self.assertEqual(ALIVE, field.successor().cell(1, 0))
+
+    def test_second_generation_of_2d_mostly_alive_field(self):
+        field = RectangularField(2, 2, state=[[ALIVE, ALIVE],
+                                              [ALIVE, DEAD]])
+        second = field.successor()
+        self.assertEqual(ALIVE, second.cell(0, 0))
+        self.assertEqual(ALIVE, second.cell(0, 1))
+        self.assertEqual(ALIVE, second.cell(1, 0))
+        self.assertEqual(ALIVE, second.cell(1, 1))
+
+    def test_second_generation_of_2d_half_alive_field_dies(self):
+        field = RectangularField(2, 2, state=[[DEAD, ALIVE],
+                                              [ALIVE, DEAD]])
+        second = field.successor()
+        self.assertEqual(DEAD, second.cell(0, 0))
+        self.assertEqual(DEAD, second.cell(0, 1))
+        self.assertEqual(DEAD, second.cell(1, 0))
+        self.assertEqual(DEAD, second.cell(1, 1))
 
 
 if __name__ == '__main__':
